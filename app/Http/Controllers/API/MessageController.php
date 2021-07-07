@@ -1,12 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Events\MessageSent;
 use App\Models\Message;
 use Illuminate\Http\Request;
-
+use App\Models\User;
+use App\Http\Controllers\Controller;
 class MessageController extends Controller
 {
+    private $validateMessage = [
+        'message'=>'required',
+        'selectedUser'=>'required'
+    ];
     /**
      * Display a listing of the resource.
      *
@@ -36,6 +42,11 @@ class MessageController extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate($this->validateMessage);
+        $message = $request->input('message');
+        $toUser = User::find($request->input('selectedUser'));
+        $fromUser = User::find(1);
+        event(new MessageSent($message,$toUser,$fromUser));
     }
 
     /**
@@ -82,4 +93,5 @@ class MessageController extends Controller
     {
         //
     }
+
 }

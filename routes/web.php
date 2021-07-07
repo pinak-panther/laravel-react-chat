@@ -20,3 +20,5 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/message', [App\Http\Controllers\HomeController::class, 'message'])->name('message');
+Route::get('/chat', [App\Http\Controllers\HomeController::class, 'chat'])->name('chat');
