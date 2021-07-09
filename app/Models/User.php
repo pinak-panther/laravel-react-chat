@@ -30,6 +30,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'created_at',
+        'updated_at'
     ];
 
     /**
@@ -51,6 +53,27 @@ class User extends Authenticatable
             return $this->hasMany(Message::class, 'user_from','id')->where('user_to',$userTo);
         }
         return $this->hasMany(Message::class, 'user_from','id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messagesFrom($userTo=null)
+    {
+            return $this->hasMany(Message::class, 'user_from','id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messagesTo()
+    {
+        return $this->hasMany(Message::class, 'user_to','id');
+    }
+
+    public function scopeUnread($query)
+    {
+        return $query->where('status', 0);
     }
 
 }

@@ -18,6 +18,11 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         User::create([
+            'name'=>'Everyone',
+            'email'=>'all@gmail.com',
+            'password'=>Hash::make('password')
+        ]);
+        User::create([
             'name'=>'Pinak',
             'email'=>'pinak@gmail.com',
             'password'=>Hash::make('password')
@@ -33,6 +38,6 @@ class DatabaseSeeder extends Seeder
             'password'=>Hash::make('password')
         ]);
 
-        Message::factory(10)->create();
+        Message::factory(50)->create();
     }
 }

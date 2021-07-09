@@ -4,37 +4,26 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\User;
 use Illuminate\Support\Facades\Log;
-
 class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
-    /**
-     * @var User
-     */
-    private $toUser;
-    /**
-     * @var User
-     */
-    private $fromUser;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message,User $toUser, User $fromUser)
+    public function __construct($message)
     {
         //
         $this->message = $message;
-        $this->toUser = $toUser;
-        $this->fromUser = $fromUser;
     }
 
     /**
@@ -44,11 +33,16 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-//           return new Channel('my-channel');
-             $channelPrefix = $this->fromUser->id > $this->toUser->id ?   $this->toUser->id."_".$this->fromUser->id :$this->fromUser->id."_".$this->toUser->id ;
-             Log::info("Private Channel Name");
-             Log::debug("{$channelPrefix}_private_channel");
-             return new Channel("{$channelPrefix}_private_channel");
+        if($this->message->user_to==0){
+            $channelName = 'public-channel';
+            Log::info("Public Channel Name");
+            Log::debug($channelName);
+            return new Channel($channelName);
+        }
+        $channelName = "App.Models.User.{$this->message->user_to}";
+        Log::info("Private Channel Name");
+        Log::debug($channelName);
+        return new PrivateChannel($channelName);
     }
 }
 

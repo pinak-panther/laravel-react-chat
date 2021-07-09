@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,6 +21,15 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/message', [App\Http\Controllers\HomeController::class, 'message'])->name('message');
-Route::get('/chat', [App\Http\Controllers\HomeController::class, 'chat'])->name('chat');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/message', [HomeController::class, 'message'])->name('message');
+Route::get('/chat', [HomeController::class, 'chat'])->name('chat');
+
+Route::post('/send-message', [MessageController::class,'store']);
+Route::get('/all-messages/to_user/{to_user}', [MessageController::class,'allMessages']);
+Route::get('/all-unread-messages/to_user/{to_user}', [MessageController::class,'getUnreadMessage']);
+Route::put('/update-message-status/{message}', [MessageController::class,'updateMessageStatus']);
+Route::put('/change-message-status-all/{user_id}', [MessageController::class,'changeMessageStatusForUser']);
+
+Route::get('/get-all-user', [UserController::class,'getAllUser']);
+Route::get('/user', [UserController::class,'getAuthUer']);

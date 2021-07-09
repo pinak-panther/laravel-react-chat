@@ -23,10 +23,10 @@ class MessageFactory extends Factory
     {
         return [
             //
-            'user_from'=>$this->faker->randomElement([1,2,3]),
-            'user_to'=>$this->faker->randomElement([1,2,3]),
+            'user_from'=>$this->faker->randomElement([1,2,3,4]),
+            'user_to'=>$this->faker->randomElement([1,2,3,4]),
             'message'=>$this->faker->sentence,
-            'status'=>$this->faker->randomElement([1,0]),
+            'status'=>0,
         ];
     }
 }
