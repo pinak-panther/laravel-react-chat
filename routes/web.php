@@ -33,3 +33,6 @@ Route::put('/change-message-status-all/{user_id}', [MessageController::class,'ch
 
 Route::get('/get-all-user', [UserController::class,'getAllUser']);
 Route::get('/user', [UserController::class,'getAuthUer']);
+Route::get('/profile', [UserController::class,'getProfile']);
+Route::get('/profile-data', [UserController::class,'getProfileData']);
+Route::post('/update-profile', [UserController::class,'updateProfileData']);
