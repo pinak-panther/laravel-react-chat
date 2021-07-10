@@ -8,7 +8,21 @@ function Profile() {
     const [contact, setContact] = useState('')
     const [profilePic, setProfilePic] = useState('')
     const [uploadedFile, setUploadedFile] = useState('')
+    const [validationErrors, setValidationErrors] = useState([]);
 
+    const styles = {
+        alertContainerStyles:{
+            border:'1px solid #fe3b3b',
+            borderRadius:'5px',
+            marginBottom: '5px',
+            marginTop: '5px',
+        },
+        singleErrorStyles:{
+            marginBottom:'5px',
+            marginTop:'5px',
+            padding:'0px'
+        }
+    }
     useEffect(() => {
         axios.get(`/profile-data`)
             .then(response => {
@@ -28,6 +42,7 @@ function Profile() {
     const contactChangeHandler = event => setContact(event.target.value);
 
     const handleSubmitClick = () => {
+        setValidationErrors([]);
         const formData = new FormData();
         if(uploadedFile != ''){
             formData.append('profile_pic',uploadedFile);
@@ -42,13 +57,33 @@ function Profile() {
             headers: { "Content-Type": "multipart/form-data" },
         }).then(response => {
             console.log(response);
+        }).catch(error=>{
+            if(error.response.status==422){
+                let {errors} = error.response.data;
+                // const tempValidationErrors = Object.entries(errors);
+                let tempValidationErrors = Object.values(errors);
+                let flatValidationErrors = tempValidationErrors.flat(5)
+                setValidationErrors(flatValidationErrors);
+            }
         })
     };
 
-    function handleFileUploadChange(event) {
+    const handleFileUploadChange = event => {
         setUploadedFile(event.target.files[0])
-    }
+    };
 
+    const showValidationErrors = () =>{
+        let content,allErrors = null;
+        if(validationErrors.length > 0)
+        {
+            allErrors = validationErrors.map((singleError,index)=>{
+              // return <p key={index} style={styles.singleErrorStyles}>{singleError[1]}</p>
+              return <p key={index} style={styles.singleErrorStyles}>{singleError}</p>
+            })
+            content = <div className={'alert-danger text-center'} style={styles.alertContainerStyles}>{allErrors}</div>;
+        }
+        return content;
+    }
     return (
         <div className="container">
             <div className="row justify-content-center">
@@ -63,23 +98,25 @@ function Profile() {
                                      className={'mb-3 rounded-circle'}/>
                                 <p>Profile Picture</p>
                             </div>
+                            {showValidationErrors()}
                             <div>
-                                <input type="text" value={email} className={'form-control'} placeholder={'Email here'}
+                                <input type="text" value={email} className={'form-control'} placeholder={'Email'}
                                        disabled={true}/>
+
                             </div>
                             <div>
                                 <input type="text" value={name} onChange={(event) => nameChangeHandler(event)}
-                                       className={'form-control mt-3'} placeholder={'Name here'}/>
+                                       className={'form-control mt-3'} placeholder={'Name'}/>
                             </div>
                             <div>
                                 <input type="text" value={contact} onChange={(event) => contactChangeHandler(event)}
-                                       className={'form-control mt-3'} placeholder={'Contact here.'}/>
+                                       className={'form-control mt-3'} placeholder={'Contact Number'}/>
                             </div>
                             <div>
                                 <input type="file" className={'form-control mt-3'} onChange={(event) => {handleFileUploadChange(event)}}/>
                             </div>
                             <div>
-                                <button className={'form-control mt-3'} onClick={() => {
+                                <button className={'form-control mt-3 btn-primary'} onClick={() => {
                                     handleSubmitClick()
                                 }}> Update Profile
                                 </button>

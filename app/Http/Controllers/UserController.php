@@ -10,9 +10,14 @@ class UserController extends Controller
 {
     private $validateProfile = [
         'name'=>'required',
-        'contact_no'=>'required',
+        'contact_no'=>'required|digits:10',
         'profile_pic' => 'sometimes|required|image',
-
+    ];
+    private $validationMessages = [
+        'name.required'=>'Name Field is Required.',
+        'contact_no.required'=>'Contact Number is Required.',
+        'contact_no.digits'=>'Contact Number Should be exactly 10 DIGITS(0-9)',
+        'profile_pic.image' => 'Profile Picture should be an Image.',
     ];
     /**
      * @var UserRepositoryInterface
@@ -70,7 +75,7 @@ class UserController extends Controller
      */
     public function updateProfileData(Request $request)
     {
-        $request->validate($this->validateProfile);
+        $request->validate($this->validateProfile,$this->validationMessages);
         if(!$this->userRepo->updateProfile($request)){
             return $this->sendError('Something Went wrong while updating data');
         }
