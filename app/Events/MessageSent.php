@@ -4,6 +4,7 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -42,7 +43,15 @@ class MessageSent implements ShouldBroadcast
         $channelName = "App.Models.User.{$this->message->user_to}";
         Log::info("Private Channel Name");
         Log::debug($channelName);
-        return new PrivateChannel($channelName);
+//        return new PrivateChannel($channelName);
+
+
+        $presenceChannel = "App.Models.User.Presence{$this->message->user_to}";
+        Log::info("Presence Channel Name");
+        Log::debug($presenceChannel);
+        return [new PresenceChannel($presenceChannel),new PrivateChannel($channelName)];
+
+
     }
 }
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 
 function Chat() {
@@ -8,6 +8,7 @@ function Chat() {
     const [authUser,setAuthUser] = useState('');
     const [allMessages,setAllMessages]= useState([]);
     const [unReadMessage,setUnreadMessage]= useState([]);
+    const [showTyping,setShowTyping]= useState(false);
     let allMessagesFromUsers=[];
 
     //start listening to public channel
@@ -28,6 +29,18 @@ function Chat() {
                     setAllMessages([...allMessages,response.message]);
                 }
             });
+    }
+
+    if(authUser){
+        const channel = `App.Models.User.Presence.${authUser.id}`;
+        Echo.private(channel)
+            .listenForWhisper('typing',(e)=>{
+            setShowTyping(true);
+            console.log(e.name);
+        }).listenForWhisper('typing-end',(e)=>{
+            setShowTyping(false);
+            console.log(e);
+        })
     }
 
     useEffect( ()=>{
@@ -57,9 +70,6 @@ function Chat() {
             })
     },[]);
 
-
-
-
     const updateMessages = id => {
         axios.get(`/all-messages/to_user/${id}`)
             .then(response => {
@@ -72,6 +82,8 @@ function Chat() {
     };
 
     const handleMessageSubmit = (event) => {
+        const channel = `App.Models.User.Presence.${selectedUser}`;
+        Echo.private(channel).whisper('typing-end',{});
         axios.post(`/send-message`,{message,selectedUser})
             .then(response=>{
                 let newMessage = response.data.data;
@@ -82,7 +94,13 @@ function Chat() {
 
     const handleMessageChange = event => {
         setMessage(event.target.value);
+        registerPresenceListener(selectedUser);
     };
+
+    const registerPresenceListener = id =>{
+        const channel = `App.Models.User.Presence.${id}`;
+        Echo.private(channel).whisper('typing',{name:id});
+    }
 
     const fetchAllMessagesForUser = id => {
         axios.get(`/all-messages/to_user/${id}`)
@@ -167,7 +185,10 @@ function Chat() {
                                 {renderMessages()}
                             </div>
                             <div className='col-md-12 text-center'>
-                                <input type="text" className="form-control" name="message" value={message} onChange={()=>{handleMessageChange(event)}} placeholder={"Please enter your message here."}/>
+                                <input type="text" className="form-control" name="message"
+                                       value={message} onChange={()=>{handleMessageChange(event)}}
+                                       placeholder={"Please enter your message here."}/>
+                                        <p style={{marginTop:'10px',marginBottom:'0px'}}>{showTyping ? `${selectedUser} is typing...`:''}</p>
                                 <button className='btn btn-primary mt-2' onClick={()=>{handleMessageSubmit(event)}}>Send Message to {selectedUser}</button>
                             </div>
                         </div>
